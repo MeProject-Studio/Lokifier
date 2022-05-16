@@ -2,9 +2,8 @@ package ru.meproject.lokifier;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.spongepowered.configurate.ConfigurateException;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+import ru.meproject.lokifier.console.LokifierConsoleHandler;
+import ru.meproject.lokifier.http.LokiDispatcherService;
 
 public class LokifierBukkitPlugin extends JavaPlugin {
     private LokifierConfig pluginConfig;
@@ -18,16 +17,18 @@ public class LokifierBukkitPlugin extends JavaPlugin {
         } catch (ConfigurateException e) {
             e.printStackTrace();
         }
-        try {
-            dispatcherService = new LokiDispatcherService(new URL(pluginConfig.config().lokiUrl), pluginConfig.config().pushInterval);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+        dispatcherService = new LokiDispatcherService(pluginConfig);
         try {
             getLogger().addHandler(new LokifierConsoleHandler(dispatcherService));
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        getServer().getScheduler()
+                .runTaskTimerAsynchronously(this,
+                        new LokifierPushTask(dispatcherService),
+                        0,
+                        pluginConfig.configData().pushInterval() * 20L);
         INSTANCE = this;
     }
 

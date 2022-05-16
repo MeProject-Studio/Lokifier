@@ -1,6 +1,7 @@
-package ru.meproject.lokifier;
+package ru.meproject.lokifier.console;
 
-import java.util.logging.ConsoleHandler;
+import ru.meproject.lokifier.http.LokiDispatcherService;
+
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
