@@ -51,15 +51,27 @@ public class LokifierConfig {
     @ConfigSerializable
     public static class Configuration {
         @Comment("Loki instance URL")
-        private String lokiUrl = "https://example.com:3100/";
+        private URL lokiUrl = Utils.getURL("http://localhost:3100");
 
-        @Comment("How often we should push to Loki. Default is 5 seconds")
-        private int pushInterval = 5;
+        @Comment("How often we should push to Loki. Default is 30 seconds")
+        private int pushInterval = 30;
 
-        @Comment("Determines amount of log entries to push at once. 0 would mean there is no limit")
+        @Comment("HTTP Basic Auth")
+        private BasicAuthSection basicAuth;
+
+        @Comment("Determines amount of log entries to be pushed at once. 0 and less would mean there is no limit")
         private int maxPushSize = 0;
 
         @Comment("Labels to put on stream produced by server")
         private @Nullable Map<String, String> labels = Map.of("server", LokifierBukkitPlugin.INSTANCE.getName());
+    }
+
+    @Getter
+    @Accessors(fluent = true)
+    @ConfigSerializable
+    public static class BasicAuthSection {
+        private boolean enable = false;
+        private String username = "user";
+        private String password = "pwd" ;
     }
 }

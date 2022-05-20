@@ -2,10 +2,11 @@ package ru.meproject.lokifier.console;
 
 import ru.meproject.lokifier.http.LokiDispatcherService;
 
-import java.util.logging.Handler;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.LogRecord;
 
-public class LokifierConsoleHandler extends Handler {
+public class LokifierConsoleHandler extends ConsoleHandler {
     private final LokiDispatcherService dispatcherService;
 
     public LokifierConsoleHandler(LokiDispatcherService dispatcherService) {
@@ -14,7 +15,8 @@ public class LokifierConsoleHandler extends Handler {
 
     @Override
     public void publish(LogRecord record) {
-        dispatcherService.addRecord(record.getMillis(), getFormatter().format(record));
+        // Loki needs unix epoch in nanoseconds
+        dispatcherService.addRecord(TimeUnit.NANOSECONDS.convert(record.getMillis(), TimeUnit.MILLISECONDS), getFormatter().format(record));
     }
 
     @Override

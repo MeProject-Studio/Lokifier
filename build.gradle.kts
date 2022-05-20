@@ -48,10 +48,8 @@ tasks {
         minecraftVersion("1.12.2")
     }
 
-    /*shadowJar {
-        shadowJar {
-            fun relocate(pkg: String) = relocate(pkg, "ru.meproject.lokifier.relocated.$pkg")
-            relocate("org.spongepowered.configurate")
-        }
-    }*/
+    shadowJar {
+        fun relocate(pkg: String) = relocate(pkg, "ru.meproject.lokifier.relocated.$pkg")
+        relocate("org.yaml.snakeyaml")
+    }
 }

@@ -12,6 +12,7 @@ public class LokifierBukkitPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        INSTANCE = this;
         try {
             this.pluginConfig = new LokifierConfig(getDataFolder().toPath().resolve("config.yml"));
         } catch (ConfigurateException e) {
