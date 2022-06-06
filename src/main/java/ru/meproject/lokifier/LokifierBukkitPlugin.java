@@ -20,7 +20,7 @@ public class LokifierBukkitPlugin extends JavaPlugin {
         }
         dispatcherService = new LokiDispatcherService(pluginConfig);
         try {
-            getLogger().addHandler(new LokifierConsoleHandler(dispatcherService));
+            getLogger().getParent().addHandler(new LokifierConsoleHandler(dispatcherService));
         } catch (Exception e) {
             e.printStackTrace();
         }

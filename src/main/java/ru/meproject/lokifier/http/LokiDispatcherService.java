@@ -48,39 +48,35 @@ public class LokiDispatcherService {
     }
 
     public void pushToLoki() throws IOException {
-        if (!isLokiReady()) {
-            Utils.logger().warning("Seems like Loki instance is down");
-        } else {
-            var lokiStreamData = LokiPushRequest.LokiStreamData.builder()
-                    .stream(lokifierConfig.configData().labels());
+        var lokiStreamData = LokiPushRequest.LokiStreamData.builder()
+                .stream(lokifierConfig.configData().labels());
 
-            List<String[]> values = new ArrayList<>();
-            pollLastEntries().stream().map(LokiLogEntry::asArray).forEachOrdered(values::add);
-            lokiStreamData.values(values);
+        List<String[]> values = new ArrayList<>();
+        pollLastEntries().stream().map(LokiLogEntry::asArray).forEachOrdered(values::add);
+        lokiStreamData.values(values);
 
-            final var lokiPushRequest = new LokiPushRequest(ImmutableList.of(lokiStreamData.build()));
+        final var lokiPushRequest = new LokiPushRequest(ImmutableList.of(lokiStreamData.build()));
 
-            final var lokiPushEndpoint = new HttpUrl.Builder()
-                    .scheme(lokifierConfig.configData().lokiUrl().getProtocol())
-                    .host(lokifierConfig.configData().lokiUrl().getHost())
-                    .port(lokifierConfig.configData().lokiUrl().getPort())
-                    .encodedPath("/loki/api/v1/push")
-                    .build();
+        final var lokiPushEndpoint = new HttpUrl.Builder()
+                .scheme(lokifierConfig.configData().lokiUrl().getProtocol())
+                .host(lokifierConfig.configData().lokiUrl().getHost())
+                .port(lokifierConfig.configData().lokiUrl().getPort())
+                .encodedPath("/loki/api/v1/push")
+                .build();
 
-            final var request = new Request.Builder()
-                    .url(lokiPushEndpoint)
-                    .post(RequestBody.create(objectMapper.writeValueAsString(lokiPushRequest), MEDIA_TYPE_JSON))
-                    .build();
+        final var request = new Request.Builder()
+                .url(lokiPushEndpoint)
+                .post(RequestBody.create(objectMapper.writeValueAsString(lokiPushRequest), MEDIA_TYPE_JSON))
+                .build();
 
-            try (var response = client.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    setLokiDown();
-                }
+        try (var response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                Utils.logger().info(String.format("Sent %d logs to Loki!", values.size()));
             }
         }
     }
 
-    public void readinessProbe() throws IOException {
+    /*public void readinessProbe() throws IOException {
         final var lokiProbeEndpoint = new HttpUrl.Builder()
                 .scheme(lokifierConfig.configData().lokiUrl().getProtocol())
                 .host(lokifierConfig.configData().lokiUrl().getHost())
@@ -93,14 +89,14 @@ public class LokiDispatcherService {
                 lokiReadiness.set(true);
             }
         }
-    }
+    }*/
 
-    private void setLokiDown() {
+    /*private void setLokiDown() {
         lokiReadiness.set(false);
         Utils.logger().warning("Is Loki instance down?");
     }
 
     public boolean isLokiReady() {
         return lokiReadiness.get();
-    }
+    }*/
 }

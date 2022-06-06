@@ -72,6 +72,6 @@ public class LokifierConfig {
     public static class BasicAuthSection {
         private boolean enable = false;
         private String username = "user";
-        private String password = "pwd" ;
+        private String password = "password" ;
     }
 }
