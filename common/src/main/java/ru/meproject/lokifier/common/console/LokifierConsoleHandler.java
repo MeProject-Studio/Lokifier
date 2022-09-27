@@ -1,6 +1,6 @@
-package ru.meproject.lokifier.console;
+package ru.meproject.lokifier.common.console;
 
-import ru.meproject.lokifier.http.LokiDispatcherService;
+import ru.meproject.lokifier.common.http.LokiDispatcherService;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.ConsoleHandler;

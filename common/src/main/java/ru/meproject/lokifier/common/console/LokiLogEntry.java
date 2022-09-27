@@ -1,4 +1,4 @@
-package ru.meproject.lokifier.console;
+package ru.meproject.lokifier.common.console;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;

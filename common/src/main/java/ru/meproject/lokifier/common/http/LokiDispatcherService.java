@@ -1,12 +1,10 @@
-package ru.meproject.lokifier.http;
+package ru.meproject.lokifier.common.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
+import org.slf4j.Logger;
+import ru.meproject.lokifier.common.LokifierConfig;
+import ru.meproject.lokifier.common.console.LokiLogEntry;
 import okhttp3.*;
-import ru.meproject.lokifier.Utils;
-import ru.meproject.lokifier.console.LokiLogEntry;
-import ru.meproject.lokifier.LokifierBukkitPlugin;
-import ru.meproject.lokifier.LokifierConfig;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,16 +19,17 @@ public class LokiDispatcherService {
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
     private final LokifierConfig lokifierConfig;
+    private final Logger logger;
     private AtomicBoolean lokiReadiness = new AtomicBoolean(false);
 
-    public LokiDispatcherService(LokifierConfig config) {
+    public LokiDispatcherService(LokifierConfig config, Logger logger) {
         this.lokifierConfig = config;
          this.client =  new OkHttpClient.Builder()
                  .authenticator(new LokiBasicAuthenticator(config))
                  .build();
          this.pushQueue = new LinkedBlockingQueue<>();
          this.objectMapper = new ObjectMapper();
-
+         this.logger = logger;
     }
 
     public void addRecord(long unixTime, String logLine) {
@@ -39,11 +38,7 @@ public class LokiDispatcherService {
 
     public ArrayList<LokiLogEntry> pollLastEntries() {
         ArrayList<LokiLogEntry> array = new ArrayList<>();
-        int drainSize = Integer.MAX_VALUE;
-        if (lokifierConfig.configData().maxPushSize() > 0) {
-            drainSize = lokifierConfig.configData().maxPushSize();
-        }
-        this.pushQueue.drainTo(array, drainSize);
+        this.pushQueue.drainTo(array);
         return array;
     }
 
@@ -55,7 +50,7 @@ public class LokiDispatcherService {
         pollLastEntries().stream().map(LokiLogEntry::asArray).forEachOrdered(values::add);
         lokiStreamData.values(values);
 
-        final var lokiPushRequest = new LokiPushRequest(ImmutableList.of(lokiStreamData.build()));
+        final var lokiPushRequest = new LokiPushRequest(List.of(lokiStreamData.build()));
 
         final var lokiPushEndpoint = new HttpUrl.Builder()
                 .scheme(lokifierConfig.configData().lokiUrl().getProtocol())
@@ -71,7 +66,7 @@ public class LokiDispatcherService {
 
         try (var response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                Utils.logger().info(String.format("Sent %d logs to Loki!", values.size()));
+                logger.info(String.format("Sent %d logs entries to Loki", values.size()));
             }
         }
     }

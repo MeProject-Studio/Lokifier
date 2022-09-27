@@ -1,9 +1,9 @@
-package ru.meproject.lokifier.http;
+package ru.meproject.lokifier.common.http;
 
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.meproject.lokifier.LokifierConfig;
+import ru.meproject.lokifier.common.LokifierConfig;
 
 import java.io.IOException;
 

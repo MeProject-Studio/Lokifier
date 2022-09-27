@@ -1,6 +1,6 @@
-package ru.meproject.lokifier;
+package ru.meproject.lokifier.common;
 
-import ru.meproject.lokifier.http.LokiDispatcherService;
+import ru.meproject.lokifier.common.http.LokiDispatcherService;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package ru.meproject.lokifier;
+package ru.meproject.lokifier.common;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -9,10 +9,8 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
-import javax.annotation.Nullable;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 
 @Accessors(fluent = true)
@@ -21,18 +19,22 @@ public class LokifierConfig {
     private final CommentedConfigurationNode node;
     private @Getter Configuration configData;
 
-    public LokifierConfig(Path configPath) throws ConfigurateException {
+    public LokifierConfig(Path configPath) {
         // Load from disk
         this.loader = YamlConfigurationLoader.builder()
                 .path(configPath)
                 .nodeStyle(NodeStyle.BLOCK)
                 .build();
         // Make a node
-        this.node = loader.load();
-        // Serialize to object
-        this.configData = node.get(Configuration.class);
-        if (!configPath.toFile().exists()) {
-            saveConfig();
+        try {
+            this.node = loader.load();
+            // Serialize to object
+            this.configData = node.get(Configuration.class);
+            if (!configPath.toFile().exists()) {
+                saveConfig();
+            }
+        } catch (ConfigurateException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -54,16 +56,13 @@ public class LokifierConfig {
         private URL lokiUrl = Utils.getURL("http://localhost:3100");
 
         @Comment("How often we should push to Loki. Default is 30 seconds")
-        private int pushInterval = 30;
+        private int pushInterval = 10;
 
         @Comment("HTTP Basic Auth")
         private BasicAuthSection basicAuth;
 
-        @Comment("Determines amount of log entries to be pushed at once. 0 and less would mean there is no limit")
-        private int maxPushSize = 0;
-
         @Comment("Labels to put on stream produced by server")
-        private @Nullable Map<String, String> labels = Map.of("server", LokifierBukkitPlugin.INSTANCE.getName());
+        private Map<String, String> labels = Map.of("job", "MyServer");
     }
 
     @Getter

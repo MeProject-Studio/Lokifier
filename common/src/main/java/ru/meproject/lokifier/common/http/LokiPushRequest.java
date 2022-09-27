@@ -1,4 +1,4 @@
-package ru.meproject.lokifier.http;
+package ru.meproject.lokifier.common.http;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
